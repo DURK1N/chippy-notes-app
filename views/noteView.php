@@ -38,6 +38,8 @@
             });
 
             function handleKeyPress(e) {
+                var socket = io();
+
                 var noteInputText = document.getElementById("noteInputText");
                 var activeElement = document.activeElement;
 
@@ -45,10 +47,20 @@
                     if (document.activeElement !== noteInputText) {
                         noteInputText.focus();
                         e.preventDefault();
-
+                        // Line 50 -> 54 is from the sockets
+                        if (noteInputText.value) {
+                            socket.emit('note', noteInputText.value);
+                            noteInputText.value = '';
+                        }
                         if (e.key.length === 1) {
                             noteInputText.value += e.key;
                         }
+                        // Line 58 -> 63 is from the sockets. This is what outputs the message to all connected clients
+                        socket.on('note', function(msg) {
+                            const item = document.createElement('p');
+                            item.textContent = msg;
+                            window.scrollTo(0, document.body.scrollHeight);
+                        });
                     }
                 }
             }
